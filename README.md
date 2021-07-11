@@ -7,7 +7,7 @@
 
 Notebook Cell Completion Browser Notifications for JupyterLab. 
 
-<img width="398" alt="notification" src="https://user-images.githubusercontent.com/3497137/111880929-2be04480-897c-11eb-8655-7e6702d70d87.png">
+<img width="387" alt="notification" src="https://user-images.githubusercontent.com/3497137/118382531-3275eb80-b5bc-11eb-9810-5b92183609c3.png">
 
 
 ## Requirements
@@ -58,6 +58,9 @@ Use the following settings to update cell execution time for a notification and 
     // Report Notebook Cell Number
     // Display notebook cell number in the notification.
     "report_cell_number": true,
+    // Cell Number Type
+    // Type of cell number to display when the report_cell_number is true. Select from 'cell_index' or ‘cell_execution_count'.
+    "cell_number_type": "cell_index"
 }
 ```
 

@@ -5,6 +5,7 @@ import {
 import { KernelError, Notebook, NotebookActions } from '@jupyterlab/notebook';
 import { Cell } from '@jupyterlab/cells';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { ICodeCellModel } from '@jupyterlab/cells';
 
 import { checkBrowserNotificationSettings } from './settings';
 
@@ -53,18 +54,23 @@ function triggerNotification(
   minimumCellExecutionTime: number,
   reportCellNumber: boolean,
   reportCellExecutionTime: boolean,
+  cellNumberType: string,
   failedExecution: boolean,
   error: KernelError | null
 ) {
   const codeCell = cell.model.type === 'code';
   const nonEmptyCell = cell.model.value.text.length > 0;
+  const codeCellModel = cell.model as ICodeCellModel;
 
   if (codeCell && nonEmptyCell) {
     const diff = new Date(<any>cellEndTime - <any>cellStartTime);
     if (diff.getSeconds() >= minimumCellExecutionTime) {
       const cellDuration = diff.toISOString().substr(11, 8);
-      const cellNumber = notebook.activeCellIndex;
-      const notebookName = notebook.title.label;
+      const cellNumber = cellNumberType === 'cell_index' ? notebook.activeCellIndex : codeCellModel.executionCount;
+      const notebookName = notebook.title.label.replace(
+        /\.[^/.]+$/,
+        ''
+      );
       displayNotification(
         cellDuration,
         cellNumber,
@@ -88,6 +94,7 @@ const extension: JupyterFrontEndPlugin<void> = {
     let minimumCellExecutionTime = 60;
     let reportCellExecutionTime = true;
     let reportCellNumber = true;
+    let cellNumberType = 'cell_index';
 
     if (settingRegistry) {
       const setting = await settingRegistry.load(extension.id);
@@ -99,7 +106,8 @@ const extension: JupyterFrontEndPlugin<void> = {
           .composite as boolean;
         reportCellNumber = setting.get('report_cell_number')
           .composite as boolean;
-        
+        cellNumberType = setting.get('cell_number_type')
+          .composite as string;
       };
       updateSettings();
       setting.changed.connect(updateSettings);
@@ -124,6 +132,7 @@ const extension: JupyterFrontEndPlugin<void> = {
                             minimumCellExecutionTime, 
                             reportCellNumber, 
                             reportCellExecutionTime,
+                            cellNumberType,
                             !success,
                             error);
       }
