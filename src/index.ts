@@ -9,7 +9,6 @@ import { ICodeCellModel } from '@jupyterlab/cells';
 
 import { checkBrowserNotificationSettings } from './settings';
 
-
 /**
  * Constructs notification message and displays it.
  */
@@ -26,7 +25,9 @@ function displayNotification(
     icon: '/static/favicon.ico',
     body: ''
   };
-  const title = failedExecution ? `${notebookName} Failed!` : `${notebookName} Completed!`;
+  const title = failedExecution
+    ? `${notebookName} Failed!`
+    : `${notebookName} Completed!`;
   let message = '';
 
   if (failedExecution) {
@@ -66,18 +67,18 @@ function triggerNotification(
     const diff = new Date(<any>cellEndTime - <any>cellStartTime);
     if (diff.getSeconds() >= minimumCellExecutionTime) {
       const cellDuration = diff.toISOString().substr(11, 8);
-      const cellNumber = cellNumberType === 'cell_index' ? notebook.activeCellIndex : codeCellModel.executionCount;
-      const notebookName = notebook.title.label.replace(
-        /\.[^/.]+$/,
-        ''
-      );
+      const cellNumber =
+        cellNumberType === 'cell_index'
+          ? notebook.activeCellIndex
+          : codeCellModel.executionCount;
+      const notebookName = notebook.title.label.replace(/\.[^/.]+$/, '');
       displayNotification(
         cellDuration,
         cellNumber,
         notebookName,
         reportCellNumber,
         reportCellExecutionTime,
-        failedExecution, 
+        failedExecution,
         error
       );
     }
@@ -106,8 +107,7 @@ const extension: JupyterFrontEndPlugin<void> = {
           .composite as boolean;
         reportCellNumber = setting.get('report_cell_number')
           .composite as boolean;
-        cellNumberType = setting.get('cell_number_type')
-          .composite as string;
+        cellNumberType = setting.get('cell_number_type').composite as string;
       };
       updateSettings();
       setting.changed.connect(updateSettings);
@@ -125,16 +125,18 @@ const extension: JupyterFrontEndPlugin<void> = {
       if (enabled) {
         const { cell, notebook, success, error } = args;
         const cellEndTime = new Date();
-        triggerNotification(cell, 
-                            notebook, 
-                            cellStartTime,
-                            cellEndTime,
-                            minimumCellExecutionTime, 
-                            reportCellNumber, 
-                            reportCellExecutionTime,
-                            cellNumberType,
-                            !success,
-                            error);
+        triggerNotification(
+          cell,
+          notebook,
+          cellStartTime,
+          cellEndTime,
+          minimumCellExecutionTime,
+          reportCellNumber,
+          reportCellExecutionTime,
+          cellNumberType,
+          !success,
+          error
+        );
       }
     });
   }
